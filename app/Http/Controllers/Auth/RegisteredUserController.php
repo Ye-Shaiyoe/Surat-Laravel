@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -28,24 +29,38 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
-    {
+    
+        public function store(Request $request): RedirectResponse {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
+            'admin_code'    => ['nullable', 'string'], // tambah field secret code
         ]);
 
+        // Cek secret code
+        $role = 'user';
+        if ($request->filled('admin_code')) {
+            if ($request->admin_code !== config('app.admin_secret_code')) {
+                return back()->withErrors(['admin_code' => 'Kode admin tidak valid.']);
+            }
+            $role = 'admin';
+        }
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'role'     => $role,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect berdasarkan role
+        return $user->isAdmin()
+            ? redirect()->intended(route('admin.dashboard'))
+            : redirect()->intended(route('dashboard'));
     }
 }
