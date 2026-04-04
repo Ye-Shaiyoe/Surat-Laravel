@@ -8,7 +8,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+<<<<<<< HEAD
 use App\Models\User;
+=======
+
+>>>>>>> ae1b02b (Add full Laravel project fresh)
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -23,6 +27,7 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
+<<<<<<< HEAD
 {
     $request->authenticate();
     $request->session()->regenerate();
@@ -35,6 +40,15 @@ class AuthenticatedSessionController extends Controller
         : redirect()->intended(route('dashboard'));
 }
         
+=======
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('dashboard', absolute: false));
+    }
+>>>>>>> ae1b02b (Add full Laravel project fresh)
 
     /**
      * Destroy an authenticated session.

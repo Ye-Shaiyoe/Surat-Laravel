@@ -4,16 +4,27 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+<<<<<<< HEAD
+=======
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+>>>>>>> ae1b02b (Add full Laravel project fresh)
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+<<<<<<< HEAD
+=======
+#[Fillable(['name', 'email', 'password'])]
+#[Hidden(['password', 'remember_token'])]
+>>>>>>> ae1b02b (Add full Laravel project fresh)
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
+<<<<<<< HEAD
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -41,6 +52,8 @@ class User extends Authenticatable
     ];
 
     /**
+=======
+>>>>>>> ae1b02b (Add full Laravel project fresh)
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
