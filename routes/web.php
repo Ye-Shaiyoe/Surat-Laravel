@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Surat;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,10 +16,16 @@ Route::get('/dashboard', function () {
 
 // Admin routes
 Route::prefix('Admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function () {
-    Route::get('/Dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/Dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::redirect('/Surat', '/Admin/Dashboard')->name('surat.index');
+    Route::get('/Surat/{surat}', function (Surat $surat) {
+        return redirect()->route('admin.dashboard');
+    })->name('surat.show');
+
+    Route::redirect('/Laporan', '/Admin/Dashboard')->name('laporan.index');
+    Route::redirect('/Template', '/Admin/Dashboard')->name('template.index');
+    Route::redirect('/Users', '/Admin/Dashboard')->name('users.index');
 });
 
 Route::middleware('auth')->group(function () {
