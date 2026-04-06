@@ -649,7 +649,7 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <!-- Email -->
+               <!-- Bagian Email cuy -->
                 <div class="field-group">
                     <label class="field-label" for="email">Alamat Email</label>
                     <div class="input-wrap">
@@ -666,7 +666,7 @@
                     @enderror
                 </div>
 
-                <!-- Password -->
+                <!-- Bagian Password -->
                 <div class="field-group">
                     <label class="field-label" for="password">Kata Sandi</label>
                     <div class="input-wrap">
