@@ -66,21 +66,32 @@
             border: 2px solid #fff;
         }
         .topbar-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 35px; height: 35px; min-width: 35px; min-height: 35px;
+            border-radius: 50%;
             background: #1e3a5f; color: #fff;
+            border: none;
+            padding: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 600; cursor: pointer;
+            font-size: 12px; font-weight: 600; font-family: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.15s, box-shadow 0.15s;
         }
-        .dropdown { position: relative; }
+        .topbar-avatar:hover { background: #16304f; }
+        .topbar-avatar:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+        .dropdown { position: relative; flex-shrink: 0; }
         .dropdown-menu {
-            display: none; position: absolute; right: 0; top: 40px;
+            display: none; position: absolute; right: 0; top: calc(100% + 6px);
             background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            min-width: 160px; z-index: 99; overflow: hidden;
+            min-width: 180px; z-index: 99; overflow: hidden;
         }
-        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown.is-open .dropdown-menu { display: block; }
         .dropdown-menu a {
-            display: block; padding: 9px 14px; font-size: 13px;
+            display: block; padding: 11px 14px; font-size: 13px;
             color: #374151; text-decoration: none;
         }
         .dropdown-menu a:hover { background: #f9fafb; }
@@ -174,6 +185,10 @@
             #sidebar { width: 0; overflow: hidden; position: fixed; z-index: 50; }
             .stat-grid { grid-template-columns: repeat(2, 1fr); }
         }
+        .notif-dot {
+            color: rgb(0, 0, 0);
+            
+        }
     </style>
 </head>
 <body>
@@ -230,16 +245,24 @@
         <div class="topbar-title">{{ $title ?? 'Dashboard' }}</div>
         <div class="topbar-right">
             <span class="topbar-badge">
-                🔔 <span class="notif-dot"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+            </svg> <span class="notif-dot"></span>
             </span>
-            <div class="dropdown">
-                <div class="topbar-avatar">
+            <div class="dropdown" id="user-menu-dropdown">
+                <button type="button"
+                        class="topbar-avatar"
+                        id="user-menu-btn"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-controls="user-menu-panel">
                     {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
-                </div>
-                <div class="dropdown-menu">
-                    <a href="{{ route('profile.edit') }}">👤 Profil</a>
+                </button>
+                <div class="dropdown-menu" id="user-menu-panel" role="menu">
+                    <a href="{{ route('profile.edit') }}" role="menuitem">👤 Profil</a>
                     <hr>
                     <a href="{{ route('logout') }}"
+                       role="menuitem"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         🚪 Logout
                     </a>
@@ -269,6 +292,35 @@
 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">
     @csrf
 </form>
+
+<script>
+(function () {
+    var root = document.getElementById('user-menu-dropdown');
+    var btn = document.getElementById('user-menu-btn');
+    if (!root || !btn) return;
+
+    function setOpen(open) {
+        root.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setOpen(!root.classList.contains('is-open'));
+    });
+
+    document.addEventListener('click', function () {
+        setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && root.classList.contains('is-open')) {
+            setOpen(false);
+            btn.focus();
+        }
+    });
+})();
+</script>
 
 </body>
 </html>
