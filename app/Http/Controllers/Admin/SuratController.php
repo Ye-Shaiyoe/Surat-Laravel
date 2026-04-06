@@ -7,6 +7,7 @@ use App\Models\Surat;
 use App\Models\SuratTahapan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\SuratStatusNotification;
 
 class SuratController extends Controller
 {
@@ -104,6 +105,22 @@ class SuratController extends Controller
             ]);
 
         $surat->update(['status' => 'ditolak']);
+
+        // Di Method Setuju()
+        $surat->user->notify(new SuratStatusNotification(
+            surat: $surat,
+            type: 'success',
+            title: 'Surat maju ke tahap berikutnya',
+            message: "Surat \"{$surat->judul}\" sudah diverifikasi dan lanjut ke tahap {$surat->tahap_sekarang}.",
+        ));
+
+        // Di method tolak()
+        $surat->user->notify(new SuratStatusNotification(
+            surat: $surat,
+            type: 'danger',
+            title: 'Surat ditolak',
+            message: "Surat \"{$surat->judul}\" ditolak. Alasan: {$request->catatan}",
+        ));
 
         return redirect()->route('admin.surat.index')
                          ->with('success', 'Surat telah ditolak dan pengusul akan diberitahu.');

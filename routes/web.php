@@ -4,6 +4,10 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SuratController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\TemplateSuratController;
+use App\Http\Controllers\User\DashboardController as UserDashboard;
+use App\Http\Controllers\User\NotifikasiController;
+use App\Http\Controllers\User\SuratController as UserSurat;
+use App\Http\Controllers\User\TemplateController as UserTemplateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,9 +16,21 @@ Route::get('/', function () {
 });
 
 // ===== USER =====
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
+
+    Route::get('/notifikasi/{id}/baca', [NotifikasiController::class, 'read'])->name('user.notif.read');
+    Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'readAll'])->name('user.notif.readAll');
+    Route::get('/template', [UserTemplateController::class, 'index'])->name('user.template.index');
+});
+
+Route::prefix('surat')->name('user.surat.')->group(function () {
+    Route::get('/',          [UserSurat::class, 'index'])->name('index');
+    Route::get('/ajukan',    [UserSurat::class, 'create'])->name('create');
+    Route::post('/ajukan',   [UserSurat::class, 'store'])->name('store');
+    Route::get('/{surat}',   [UserSurat::class, 'show'])->name('show');
+});
+
 
 // ===== ADMIN =====
 Route::prefix('Admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function () {
