@@ -481,7 +481,7 @@
                         <label class="field-label" for="email">Alamat Email</label>
                         <div class="input-wrap">
                             <input class="field-input" id="email" type="email" name="email"
-                                value="{{ old('email') }}" placeholder="nama@instansi.go.id"
+                                value="{{ old('email') }}" placeholder="example@gmail.com"
                                 required autocomplete="username">
                             <i class="bi bi-envelope input-icon"></i>
                         </div>
