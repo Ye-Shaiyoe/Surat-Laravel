@@ -10,6 +10,7 @@ use App\Http\Controllers\User\SuratController as UserSurat;
 use App\Http\Controllers\User\TemplateController as UserTemplateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NotificationApiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,10 +55,18 @@ Route::prefix('Admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
     Route::post('/Template', [TemplateSuratController::class, 'store'])->name('template.store');
     Route::delete('/Template', [TemplateSuratController::class, 'destroy'])->name('template.destroy');
 
-    
+    // Users / Pegawai
+    Route::get('/Users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('/Users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::delete('/Users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+});
 
-    // Users (placeholder dulu, nanti diisi)
-    Route::redirect('/Users', '/Admin/Dashboard')->name('users.index');
+Route::middleware(['auth', 'verified'])->prefix('notif')->name('notif.')->group(function () {
+    Route::get('/poll',           [NotificationApiController::class, 'poll'])       ->name('poll');
+    Route::post('/read/{id}',     [NotificationApiController::class, 'markRead'])   ->name('read');
+    Route::post('/read-all',      [NotificationApiController::class, 'markAllRead'])->name('readAll');
+    Route::post('/delete/{id}',   [NotificationApiController::class, 'destroy'])    ->name('delete');
+    Route::post('/delete-all',    [NotificationApiController::class, 'destroyAll']) ->name('deleteAll');
 });
 
 // ===== PROFILE (Breeze) =====
