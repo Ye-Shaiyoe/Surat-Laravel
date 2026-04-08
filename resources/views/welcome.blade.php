@@ -22,11 +22,11 @@
             background: #050b1a; /* fallback color */
             color: white;
         }
-        
+
         .delay-appear {
             opacity: 0;
             animation: fadeSlideUp 0.8s ease-out forwards;
-            animation-delay: 1s; 
+            animation-delay: 2s; 
         }
 
         @keyframes fadeSlideUp {
