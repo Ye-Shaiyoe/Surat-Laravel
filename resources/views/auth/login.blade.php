@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — Sistem Surat Metrologi</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" href="{{ asset('images/BPSUML2.png') }}">
+
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -601,13 +602,13 @@
 
             <div class="logo-outer">
                 <div class="logo-inner">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Dinas">
+                    <img src="{{ asset('images/BPSUML2.png') }}" alt="Logo Dinas">
                 </div>
             </div>
 
-            <div class="brand-title">Dinas Perdagangan<br>dan Perindustrian</div>
+            <div class="brand-title">Balai Pengelola SUML<br>dan Perindustrian</div>
             <div class="divider-line"></div>
-            <div class="brand-sub">Sistem Informasi<br>Manajemen Surat<br>Metrologi Legal</div>
+            <div class="brand-sub">Sistem Informasi<br>Manajemen/Monitoring Surat<br>Balai Pengelola SUML</div>
 
             <div class="divider-line"></div>
 
@@ -649,17 +650,17 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-               <!-- Bagian Email cuy -->
+               <!-- Bagian Email/NIP -->
                 <div class="field-group">
-                    <label class="field-label" for="email">Alamat Email</label>
+                    <label class="field-label" for="email">Email atau NIP</label>
                     <div class="input-wrap">
                         <input
                             class="field-input"
-                            id="email" type="email" name="email"
+                            id="email" type="text" name="email"
                             value="{{ old('email') }}"
-                            placeholder="contoh@gmail.com"
+                            placeholder="Masukkan email atau NIP"
                             required autofocus autocomplete="username">
-                        <i class="bi bi-envelope input-icon"></i>
+                        <i class="bi bi-person input-icon"></i>
                     </div>
                     @error('email')
                         <p class="error-text"><i class="bi bi-x-circle-fill" style="font-size:10px;"></i> {{ $message }}</p>
@@ -718,7 +719,7 @@
 
         <!-- Footer bar -->
         <div class="footer-bar">
-            <span>&copy; {{ date('Y') }} Dinas Perdagangan dan Perindustrian &mdash; Hak cipta dilindungi undang-undang</span>
+            <span>&copy; {{ date('Y') }} Balai Pengelola SUML &mdash; Hak cipta dilindungi undang-undang</span>
         </div>
     </div>
 
