@@ -59,6 +59,7 @@ Sistem Manajemen Surat Digital untuk Kantor Metrologi dengan alur approval multi
 - **Node.js** >= 18.x
 - **NPM** >= 9.x
 - **MySQL** >= 8.0 (via XAMPP)
+- **Laravel** >= 12
 - **Git**
 
 ---
