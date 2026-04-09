@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Email - Sistem Surat Metrologi</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" href="{{ asset('images/BPSUML2.png') }}">
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
