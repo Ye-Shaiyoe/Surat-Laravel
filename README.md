@@ -2,27 +2,7 @@
 
 Sistem Manajemen Surat Digital untuk Kantor Metrologi dengan alur approval multi-tahap, tracking SLA real-time, dan dashboard komprehensif.
 
-## 📑 Daftar Isi
 
-- [Fitur Utama](#fitur-utama)
-- [Teknologi yang Digunakan](#teknologi-yang-digunakan)
-- [Persyaratan Sistem](#persyaratan-sistem)
-- [Instalasi](#instalasi)
-- [Konfigurasi](#konfigurasi)
-- [Menjalankan Aplikasi](#menjalankan-aplikasi)
-- [Struktur Role](#struktur-role)
-- [Alur Kerja Surat](#alur-kerja-surat)
-- [Jenis Surat](#jenis-surat)
-- [Tracking SLA](#tracking-sla)
-- [Notifikasi](#notifikasi)
-- [Struktur Database](#struktur-database)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [License](#license)
-
----
-
-## ✨ Fitur Utama
 
 ### 🔐 Autentikasi & Keamanan
 - Login & Register dengan email verification
