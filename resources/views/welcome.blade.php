@@ -7,7 +7,8 @@
     <title>Direktorat Metrologi | Sistem Informasi 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" href="{{ asset('images/BPSUML2.png') }}">
+
     <style>
         * {
             box-sizing: border-box;
@@ -207,13 +208,9 @@
     </style>
 </head>
 <body>
-
-    <!-- Container untuk Canvas 3D -->
     <div id="canvas-container"></div>
 
-    <!-- Konten Utama -->
     <div class="content">
-        <!-- Header -->
         <div class="flex justify-end items-center py-6 px-8">
             <div class="logo-pill">
                 <div class="logo-icon">
@@ -223,8 +220,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 style="font-size:14px; font-weight:700; color:#fff; letter-spacing:-0.2px;">Direktorat Metrologi</h2>
-                    <p style="font-size:10px; color:rgba(255,255,255,0.65); margin-top:2px;">Kementerian Perdagangan</p>
+                    <h2 style="font-size:14px; font-weight:700; color:#fff; letter-spacing:-0.2px;">Balai Pengelola SUML</h2>
+                    <p style="font-size:10px; color:rgba(255,255,255,0.65); margin-top:2px;"> BPSUML Data Pengelolaan</p>
                 </div>
             </div>
         </div>
@@ -235,7 +232,7 @@
                 <!-- Logo Image -->
                 <div class="icon-wrap">
                     <a href="{{ url('/') }}">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo Metrologi">
+                        <img src="{{ asset('images/BPSUML2.png') }}" alt="Logo Metrologi">
                     </a>
                 </div>
 
@@ -243,7 +240,7 @@
                     Selamat Datang
                 </h1>
                 <p style="font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:20px; line-height:1.5; font-weight:500;">
-                    Sistem Informasi Direktorat Metrologi
+                    Sistem Informasi Balai Pengelola SUML
                 </p>
 
                 <div class="divider-glow"></div>
@@ -253,7 +250,7 @@
                 <a href="{{ route('register') }}" class="btn-secondary">Buat Akun Baru</a>
 
                 <p style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:32px; letter-spacing:0.3px; font-weight:500;">
-                    &copy; {{ date('Y') }} Direktorat Metrologi. Hak Cipta Dilindungi.
+                    &copy; {{ date('Y') }} Balai Pengelola SUML. Hak Cipta Dilindungi.
                 </p>
             </div>
         </div>
