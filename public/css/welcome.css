@@ -3242,3 +3242,39 @@ body.menu-open .navbar {
     .btn-gold::after { display: none; }
     .faq-body { animation: none; }
 }
+
+/* =========================================================
+   SMK Al Falah Watermark Styling
+   ========================================================= */
+.watermark-bg {
+    position: fixed;
+    bottom: 24px;
+    right: 28px;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.08;
+    transition: opacity 0.3s ease;
+}
+
+.watermark-bg img {
+    width: clamp(140px, 18vw, 240px);
+    height: auto;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.1));
+    transform: rotate(-6deg);
+}
+
+@media (max-width: 768px) {
+    .watermark-bg {
+        bottom: 20px;
+        right: 18px;
+        opacity: 0.06;
+    }
+    .watermark-bg img {
+        width: 120px;
+    }
+}
+

@@ -10,9 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}?v=20">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}?v=21">
 </head>
 <body>
+
+    {{-- BACKGROUND WATERMARK --}}
+    <div class="watermark-bg" aria-hidden="true">
+        <img src="{{ asset('images/Logo SMK ALFALAH.png') }}" alt="Watermark SMK Al Falah">
+    </div>
 
     {{-- MOBILE OVERLAY --}}
     <div class="nav-overlay" id="nav-overlay"></div>
