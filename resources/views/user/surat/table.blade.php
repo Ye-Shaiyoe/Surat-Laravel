@@ -50,6 +50,14 @@
                 </select>
             </div>
             <div>
+                <label class="form-label mb-1" style="font-size:11px;color:#6b7280;font-weight:600;">DARI TGL</label>
+                <input type="date" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}" class="form-control form-control-sm" style="font-size:13px;border-radius:7px;width:140px;background:#ffffff;color:#111827;border-color:#e5e7eb;">
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:11px;color:#6b7280;font-weight:600;">SAMPAI TGL</label>
+                <input type="date" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}" class="form-control form-control-sm" style="font-size:13px;border-radius:7px;width:140px;background:#ffffff;color:#111827;border-color:#e5e7eb;">
+            </div>
+            <div>
                 <label class="form-label mb-1" style="font-size:11px;color:#6b7280;font-weight:600;">TAHUN</label>
                 <select name="tahun" class="form-select form-select-sm" style="font-size:13px;border-radius:7px;width:100px;">
                     <option value="">Semua</option>

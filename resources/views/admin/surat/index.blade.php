@@ -201,10 +201,13 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-4 d-flex justify-content-md-end align-items-end gap-2 pt-md-4">
-                <div class="live-indicator me-2 d-none d-sm-inline-flex">
+            <div class="col-lg-4 col-md-4 d-flex justify-content-md-end align-items-end gap-2 pt-md-4 flex-wrap">
+                <div class="live-indicator me-1 d-none d-sm-inline-flex">
                     <span class="live-dot"></span> Live Filter
                 </div>
+                <a id="btnExportExcel" href="{{ route('admin.surat.exportExcel', request()->all()) }}" class="btn btn-sm btn-success px-3 py-2 d-inline-flex align-items-center gap-1" style="border-radius:8px; font-size:12px; font-weight:600; background:#10b981; border-color:#10b981;" title="Export Excel data surat sesuai filter">
+                    <i class="bi bi-file-earmark-excel-fill"></i> Export Excel
+                </a>
                 <button type="button" onclick="resetAllFilters()" class="btn btn-sm btn-light border px-3 py-2" style="border-radius:8px; font-size:12px; font-weight:600;">
                     <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filter
                 </button>
@@ -274,6 +277,18 @@
                 </select>
             </div>
             @endif
+
+            {{-- Dari Tanggal --}}
+            <div class="col-lg-2 col-md-3 col-6">
+                <label class="filter-label">Dari Tanggal</label>
+                <input type="date" name="tanggal_mulai" id="tanggalMulaiInput" value="{{ request('tanggal_mulai') }}" class="filter-select">
+            </div>
+
+            {{-- Sampai Tanggal --}}
+            <div class="col-lg-2 col-md-3 col-6">
+                <label class="filter-label">Sampai Tanggal</label>
+                <input type="date" name="tanggal_selesai" id="tanggalSelesaiInput" value="{{ request('tanggal_selesai') }}" class="filter-select">
+            </div>
 
             {{-- Tahun --}}
             <div class="col-lg-1 col-md-2 col-6">
@@ -355,9 +370,30 @@
         }
     }
 
+    // Dynamic Export Excel URL Sync
+    const exportBaseUrl = "{{ route('admin.surat.exportExcel') }}";
+    function updateExportUrl() {
+        const btnExport = document.getElementById('btnExportExcel');
+        if (!btnExport || !filterForm) return;
+
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams();
+
+        for (const [key, value] of formData.entries()) {
+            if (value !== '' && value !== null) {
+                params.append(key, value);
+            }
+        }
+
+        const qs = params.toString();
+        btnExport.href = exportBaseUrl + (qs ? '?' + qs : '');
+    }
+
     // Function to perform AJAX fetch and update table
     function performLiveFilter(targetUrl = null) {
         if (!filterForm || !tableContainer) return;
+
+        updateExportUrl();
 
         const url = targetUrl ? new URL(targetUrl, window.location.origin) : new URL(filterForm.action, window.location.origin);
         
@@ -463,10 +499,12 @@
         if (searchInput) searchInput.value = '';
         
         filterForm.querySelectorAll('select').forEach(sel => sel.value = '');
+        filterForm.querySelectorAll('input[type="date"]').forEach(inp => inp.value = '');
         const slaInput = document.getElementById('slaStatusInput');
         if (slaInput) slaInput.value = '';
         
         updateClearBtn();
+        updateExportUrl();
         
         document.querySelectorAll('.chip-btn').forEach((btn, idx) => {
             btn.classList.toggle('active', idx === 0);
@@ -478,6 +516,7 @@
     // Event Listeners on Load
     document.addEventListener('DOMContentLoaded', function() {
         updateClearBtn();
+        updateExportUrl();
         bindPaginationLinks();
 
         // Realtime Search on Input (Debounce 300ms)
@@ -503,7 +542,7 @@
             });
         }
 
-        // Dropdowns onChange
+        // Dropdowns & Date inputs onChange
         if (filterForm) {
             filterForm.querySelectorAll('.filter-select').forEach(select => {
                 select.addEventListener('change', function() {
@@ -521,6 +560,7 @@
     // Support Turbo if loaded
     document.addEventListener('turbo:load', function() {
         updateClearBtn();
+        updateExportUrl();
         bindPaginationLinks();
     });
 </script>

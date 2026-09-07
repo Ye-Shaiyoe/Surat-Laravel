@@ -22,14 +22,30 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        $name     = env('ADMIN_SEED_NAME',     'Super Admin');
-        $email    = env('ADMIN_SEED_EMAIL',    null);
-        $password = env('ADMIN_SEED_PASSWORD', null);
-        $nip      = env('ADMIN_SEED_NIP',      null);
+        $name     = env('ADMIN_SEED_NAME');
+        $email    = env('ADMIN_SEED_EMAIL');
+        $password = env('ADMIN_SEED_PASSWORD');
+        $nip      = env('ADMIN_SEED_NIP');
+
+        // Jika config sedang dicache (php artisan config:cache), env() di luar config/*.php mengembalikan null.
+        // Muat ulang .env secara langsung agar seeder tetap dapat berjalan:
+        if ((!$email || !$password) && file_exists(base_path('.env'))) {
+            try {
+                $dotenv = \Dotenv\Dotenv::createImmutable(base_path());
+                $dotenv->safeLoad();
+                $name     = env('ADMIN_SEED_NAME');
+                $email    = env('ADMIN_SEED_EMAIL');
+                $password = env('ADMIN_SEED_PASSWORD');
+                $nip      = env('ADMIN_SEED_NIP');
+            } catch (\Throwable $e) {}
+        }
+
+        $name = $name ?: 'Super Admin';
 
         // Wajib ada email & password di .env
         if (!$email || !$password) {
             $this->command->error('ADMIN_SEED_EMAIL dan ADMIN_SEED_PASSWORD harus diisi di .env sebelum menjalankan AdminSeeder.');
+            $this->command->warn('Tip: Jika sudah diisi di .env, jalankan `php artisan config:clear` terlebih dahulu.');
             return;
         }
 

@@ -20,7 +20,7 @@
             Menampilkan {{ $surats->firstItem() ?? 0 }} - {{ $surats->lastItem() ?? 0 }} dari total <strong>{{ $surats->total() }}</strong> data surat
         </small>
     </div>
-    @if(request()->anyFilled(['search', 'jenis', 'status', 'sifat', 'tahap', 'user_id', 'sla_status', 'bulan', 'tahun']))
+    @if(request()->anyFilled(['search', 'jenis', 'status', 'sifat', 'tahap', 'user_id', 'sla_status', 'bulan', 'tahun', 'tanggal_mulai', 'tanggal_selesai', 'start_date', 'end_date']))
         <span class="badge" style="background:rgba(59, 130, 246, 0.08); color:#2563eb; border:1px solid rgba(59, 130, 246, 0.2); font-size:11px; padding:5px 12px; border-radius:20px; font-weight:600;">
             <i class="bi bi-funnel-fill me-1"></i> Filter Aktif
         </span>

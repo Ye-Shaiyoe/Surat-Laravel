@@ -14,10 +14,80 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Services\HtmlSanitizer;
+use App\Exports\AdminSuratExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class SuratController extends Controller
 {
     public function index(Request $request, $title = 'Antrian Surat', bool $isAntrian = true)
+    {
+        $query = $this->buildFilteredQuery($request, $isAntrian);
+
+        // Sorting
+        $sort = $request->get('sort', 'priority');
+        if ($sort === 'oldest') {
+            $query->oldest();
+        } elseif ($sort === 'sla') {
+            $query->orderByRaw("CASE WHEN sla_status = 'terlambat' THEN 0 ELSE 1 END")
+                  ->orderBy('deadline_sla', 'asc');
+        } else {
+            // Default: Prioritaskan status revisi, lalu tanggal terbaru
+            $query->orderByRaw("CASE WHEN status = 'revisi' OR status = 'revisi_admin' THEN 0 ELSE 1 END")
+                  ->latest();
+        }
+
+        $perPage = (int) $request->get('per_page', 15);
+        $surats = $query->paginate($perPage)->withQueryString();
+
+        // AJAX Request support for live search / filter without full page reload
+        if ($request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return view('admin.surat.partials.table', compact('surats', 'title'))->render();
+        }
+
+        $users = User::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.surat.index', compact('surats', 'title', 'users'));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $query = $this->buildFilteredQuery($request, false);
+
+        $sort = $request->get('sort', 'priority');
+        if ($sort === 'oldest') {
+            $query->oldest();
+        } elseif ($sort === 'sla') {
+            $query->orderByRaw("CASE WHEN sla_status = 'terlambat' THEN 0 ELSE 1 END")
+                  ->orderBy('deadline_sla', 'asc');
+        } else {
+            $query->orderByRaw("CASE WHEN status = 'revisi' OR status = 'revisi_admin' THEN 0 ELSE 1 END")
+                  ->latest();
+        }
+
+        $tglMulai = $request->get('tanggal_mulai') ?: $request->get('start_date');
+        $tglSelesai = $request->get('tanggal_selesai') ?: $request->get('end_date');
+
+        $dateSuffix = '';
+        if ($tglMulai && $tglSelesai) {
+            $dateSuffix = '_' . $tglMulai . '_sd_' . $tglSelesai;
+        } elseif ($tglMulai) {
+            $dateSuffix = '_dari_' . $tglMulai;
+        } elseif ($tglSelesai) {
+            $dateSuffix = '_sampai_' . $tglSelesai;
+        } else {
+            $dateSuffix = '_' . date('Y-m-d_His');
+        }
+
+        $fileName = 'Data_Surat_Admin' . $dateSuffix . '.xlsx';
+
+        return Excel::download(new AdminSuratExport($query), $fileName);
+    }
+
+    /**
+     * Build filtered query for Admin Surat table and export
+     */
+    protected function buildFilteredQuery(Request $request, bool $isAntrian = true)
     {
         $query = Surat::with(['user', 'pendingDeleteRequest'])->latest();
 
@@ -25,7 +95,7 @@ class SuratController extends Controller
 
         // Filter berdasarkan role admin HANYA jika di halaman Antrian Surat (Inbox Tugas Aktif)
         // Di halaman Semua Surat / Surat Selesai / Tabel Data Surat, seluruh admin (termasuk Kasubbag TU & Kepala Balai) dapat melihat seluruh surat
-        if ($isAntrian) {
+        if ($isAntrian && $admin) {
             if ($admin->role === 'admin_aspirasi') {
                 $query->where(function ($q) {
                     $q->where('tahap_sekarang', 2)
@@ -88,38 +158,55 @@ class SuratController extends Controller
             });
         }
 
-        // Filter: Bulan & Tahun
-        if ($request->filled('bulan')) {
-            $query->whereMonth('created_at', (int) $request->bulan);
-        }
-        if ($request->filled('tahun')) {
-            $query->whereYear('created_at', (int) $request->tahun);
-        }
+        // Filter: Rentang Tanggal Pengajuan (created_at)
+        $startDate = $request->get('tanggal_mulai') ?: $request->get('start_date');
+        $endDate = $request->get('tanggal_selesai') ?: $request->get('end_date');
 
-        // Sorting
-        $sort = $request->get('sort', 'priority');
-        if ($sort === 'oldest') {
-            $query->oldest();
-        } elseif ($sort === 'sla') {
-            $query->orderByRaw("CASE WHEN sla_status = 'terlambat' THEN 0 ELSE 1 END")
-                  ->orderBy('deadline_sla', 'asc');
+        if ($startDate || $endDate) {
+            $parsedStart = null;
+            $parsedEnd = null;
+
+            if ($startDate) {
+                try {
+                    $parsedStart = Carbon::parse($startDate)->startOfDay();
+                } catch (\Exception $e) {
+                    $parsedStart = null;
+                }
+            }
+
+            if ($endDate) {
+                try {
+                    $parsedEnd = Carbon::parse($endDate)->endOfDay();
+                } catch (\Exception $e) {
+                    $parsedEnd = null;
+                }
+            }
+
+            // Jika tanggal mulai lebih besar dari selesai, tukar urutan agar query valid
+            if ($parsedStart && $parsedEnd && $parsedStart->gt($parsedEnd)) {
+                $temp = $parsedStart->copy()->startOfDay();
+                $parsedStart = $parsedEnd->copy()->startOfDay();
+                $parsedEnd = $temp->copy()->endOfDay();
+            }
+
+            if ($parsedStart && $parsedEnd) {
+                $query->whereBetween('created_at', [$parsedStart, $parsedEnd]);
+            } elseif ($parsedStart) {
+                $query->where('created_at', '>=', $parsedStart);
+            } elseif ($parsedEnd) {
+                $query->where('created_at', '<=', $parsedEnd);
+            }
         } else {
-            // Default: Prioritaskan status revisi, lalu tanggal terbaru
-            $query->orderByRaw("CASE WHEN status = 'revisi' OR status = 'revisi_admin' THEN 0 ELSE 1 END")
-                  ->latest();
+            // Gunakan bulan dan tahun jika rentang tanggal tidak diisi
+            if ($request->filled('bulan')) {
+                $query->whereMonth('created_at', (int) $request->bulan);
+            }
+            if ($request->filled('tahun')) {
+                $query->whereYear('created_at', (int) $request->tahun);
+            }
         }
 
-        $perPage = (int) $request->get('per_page', 15);
-        $surats = $query->paginate($perPage)->withQueryString();
-
-        // AJAX Request support for live search / filter without full page reload
-        if ($request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return view('admin.surat.partials.table', compact('surats', 'title'))->render();
-        }
-
-        $users = User::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.surat.index', compact('surats', 'title', 'users'));
+        return $query;
     }
 
     public function semua(Request $request)

@@ -116,6 +116,7 @@ Route::prefix('Admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
         Route::get('/Surat-Proses', [SuratController::class, 'proses'])->name('surat.proses');
         Route::get('/Surat-Selesai', [SuratController::class, 'selesai'])->name('surat.selesai');
         Route::get('/Surat-Revisi', [SuratController::class, 'revisi'])->name('surat.revisi');
+        Route::get('/Surat-Export-Excel', [SuratController::class, 'exportExcel'])->name('surat.exportExcel');
         Route::get('/Surat/{surat}', [SuratController::class, 'show'])->name('surat.show');
         Route::post('/Surat/{surat}/setujui', [SuratController::class, 'setujui'])->name('surat.setujui');
         Route::post('/Surat/{surat}/tolak', [SuratController::class, 'tolak'])->name('surat.tolak');

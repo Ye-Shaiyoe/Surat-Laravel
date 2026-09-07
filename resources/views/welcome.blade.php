@@ -345,7 +345,7 @@
                     <figure class="about-photo about-photo-top">
                         <img src="{{ asset('images/about/Modern.jpg') }}" alt="Ruang kerja BPSUML"
                              loading="lazy"
-                             onerror="this.src='{{ asset('images/about/office.png') }}'">
+                             onerror="this.src='{{ asset('images/about/Modern.jpg') }}'">
                         <figcaption class="about-photo-label">Ruang Kerja</figcaption>
                     </figure>
 

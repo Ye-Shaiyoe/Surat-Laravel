@@ -78,6 +78,46 @@ class SuratController extends Controller
 
     public function table(Request $request)
     {
+        $query = $this->buildUserTableQuery($request);
+
+        $surats = $query->paginate(15)->withQueryString();
+        $title = $request->status === 'draft' ? 'Tabel Draft Surat' : 'Tabel Surat Saya';
+
+        return view('user.surat.table', compact('surats', 'title'));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $filters = $request->only([
+            'status', 'jenis', 'tahun', 'bulan', 'search',
+            'tanggal_mulai', 'tanggal_selesai', 'start_date', 'end_date'
+        ]);
+
+        $tglMulai = $filters['tanggal_mulai'] ?? $filters['start_date'] ?? null;
+        $tglSelesai = $filters['tanggal_selesai'] ?? $filters['end_date'] ?? null;
+
+        $dateSuffix = '';
+        if ($tglMulai && $tglSelesai) {
+            $dateSuffix = '_' . $tglMulai . '_sd_' . $tglSelesai;
+        } elseif ($tglMulai) {
+            $dateSuffix = '_dari_' . $tglMulai;
+        } elseif ($tglSelesai) {
+            $dateSuffix = '_sampai_' . $tglSelesai;
+        } else {
+            $dateSuffix = '_' . date('Y-m-d_His');
+        }
+
+        $sanitizedName = preg_replace('/[^A-Za-z0-9_\-]/', '_', Auth::user()->name);
+        $fileName = 'Data_Surat_' . $sanitizedName . $dateSuffix . '.xlsx';
+
+        return Excel::download(new UserSuratExport($filters), $fileName);
+    }
+
+    /**
+     * Build query filter untuk tabel dan export surat pengguna
+     */
+    protected function buildUserTableQuery(Request $request)
+    {
         $query = Surat::where('user_id', Auth::id())
             ->with('tahapans')
             ->latest();
@@ -92,29 +132,59 @@ class SuratController extends Controller
             $query->where('jenis', $request->jenis);
         }
 
-        if ($request->filled('tahun')) {
-            $query->whereYear('created_at', $request->tahun);
-        }
-        if ($request->filled('bulan')) {
-            $query->whereMonth('created_at', $request->bulan);
+        // Filter Rentang Tanggal Pengajuan (created_at)
+        $startDate = $request->get('tanggal_mulai') ?: $request->get('start_date');
+        $endDate = $request->get('tanggal_selesai') ?: $request->get('end_date');
+
+        if ($startDate || $endDate) {
+            $parsedStart = null;
+            $parsedEnd = null;
+
+            if ($startDate) {
+                try {
+                    $parsedStart = Carbon::parse($startDate)->startOfDay();
+                } catch (\Exception $e) {
+                    $parsedStart = null;
+                }
+            }
+
+            if ($endDate) {
+                try {
+                    $parsedEnd = Carbon::parse($endDate)->endOfDay();
+                } catch (\Exception $e) {
+                    $parsedEnd = null;
+                }
+            }
+
+            // Jika tanggal mulai lebih besar dari selesai, tukar urutan agar query valid
+            if ($parsedStart && $parsedEnd && $parsedStart->gt($parsedEnd)) {
+                $temp = $parsedStart->copy()->startOfDay();
+                $parsedStart = $parsedEnd->copy()->startOfDay();
+                $parsedEnd = $temp->copy()->endOfDay();
+            }
+
+            if ($parsedStart && $parsedEnd) {
+                $query->whereBetween('created_at', [$parsedStart, $parsedEnd]);
+            } elseif ($parsedStart) {
+                $query->where('created_at', '>=', $parsedStart);
+            } elseif ($parsedEnd) {
+                $query->where('created_at', '<=', $parsedEnd);
+            }
+        } else {
+            // Gunakan filter tahun dan bulan jika rentang tanggal tidak diisi
+            if ($request->filled('tahun')) {
+                $query->whereYear('created_at', $request->tahun);
+            }
+            if ($request->filled('bulan')) {
+                $query->whereMonth('created_at', $request->bulan);
+            }
         }
 
         if ($request->filled('search')) {
             $query->where('judul', 'like', '%' . $request->search . '%');
         }
 
-        $surats = $query->paginate(15)->withQueryString();
-        $title = $request->status === 'draft' ? 'Tabel Draft Surat' : 'Tabel Surat Saya';
-
-        return view('user.surat.table', compact('surats', 'title'));
-    }
-
-    public function exportExcel(Request $request)
-    {
-        $filters = $request->only(['status', 'jenis', 'tahun', 'bulan', 'search']);
-        $fileName = 'Data_Surat_' . Auth::user()->name . '_' . date('Y-m-d_His') . '.xlsx';
-
-        return Excel::download(new UserSuratExport($filters), $fileName);
+        return $query;
     }
 
     public function create()
